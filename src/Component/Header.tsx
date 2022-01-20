@@ -78,9 +78,9 @@ const Logovar = {
 };
 const navVar = {
   top: {
-    backgroundColor: "rgba(0,0,0,1)",
+    backgroundColor: "rgba(0,0,0,0)",
   },
-  scroll: { backgroundColor: "rgba(0,0,0,0)" },
+  scroll: { backgroundColor: "rgba(0,0,0,1)" },
 };
 function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -104,7 +104,7 @@ function Header() {
 
   useEffect(() => {
     scrollY.onChange(() => {
-      if (scrollY.get() > 80) {
+      if (scrollY.get() < 80) {
         navAnimation.start("top");
       } else {
         navAnimation.start("scroll");
