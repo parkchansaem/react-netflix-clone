@@ -17,6 +17,7 @@ const Loading = styled.span`
 const Banner = styled.div<{ bgPhoto: string }>`
   height: 100vh;
   display: flex;
+  padding: 20px;
   flex-direction: column;
   justify-content: center;
   background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.7)),
@@ -51,6 +52,12 @@ const Box = styled(motion.div)<{ bgPhoto: string }>`
   background-image: url(${(props) => props.bgPhoto});
   background-size: cover;
   background-position: center center;
+  &:first-child {
+    transform-origin: center left;
+  }
+  &:last-child {
+    transform-origin: center right;
+  }
 `;
 const rowVar = {
   hidden: { x: window.innerWidth - 10 },
@@ -58,6 +65,33 @@ const rowVar = {
   exit: { x: -window.innerWidth + 10 },
 };
 const offset = 6;
+
+const boxVar = {
+  normal: { scale: 1 },
+  hover: {
+    scale: 1.3,
+    y: -80,
+    transition: { delay: 0.5, duration: 0.3, type: "tween" },
+  },
+};
+const Info = styled(motion.div)`
+  bottom: 0;
+  padding: 10px;
+  background-color: ${(props) => props.theme.black.lighter};
+  width: 100%;
+  position: absolute;
+  opacity: 0;
+  h4 {
+    font-size: 18px;
+    text-align: center;
+  }
+`;
+const infoVar = {
+  hover: {
+    opacity: 1,
+    transition: { delay: 0.5, duration: 0.3, type: "tween" },
+  },
+};
 function Home() {
   const { data, isLoading } = useQuery<IGetMoviesResult>(
     ["movies", "nowPlaying"],
@@ -103,9 +137,17 @@ function Home() {
                   .slice(offset * index, offset * index + offset)
                   .map((movie) => (
                     <Box
+                      variants={boxVar}
+                      initial="normal"
+                      whileHover="hover"
+                      transition={{ type: "tween" }}
                       key={movie.Id}
                       bgPhoto={makeImagePath(movie.backdrop_path, "w500")}
-                    />
+                    >
+                      <Info variants={infoVar}>
+                        <h4>{movie.original_title}</h4>
+                      </Info>
+                    </Box>
                   ))}
               </Row>
             </AnimatePresence>
