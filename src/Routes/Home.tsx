@@ -82,7 +82,7 @@ const Info = styled(motion.div)`
   position: absolute;
   opacity: 0;
   h4 {
-    font-size: 18px;
+    font-size: 20px;
     text-align: center;
   }
 `;
