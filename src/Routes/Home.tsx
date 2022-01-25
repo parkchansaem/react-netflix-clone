@@ -1,12 +1,16 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useViewportScroll } from "framer-motion";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import styled from "styled-components";
 import { getMovie, IGetMoviesResult } from "../api";
 import { makeImagePath } from "../utils";
+import { useMatch, useNavigate } from "react-router-dom";
+import { moveEmitHelpers } from "typescript";
 
 const Wrapper = styled.div`
   background-color: black;
+  overflow: hidden;
+  padding-bottom: 100px;
 `;
 const Loading = styled.span`
   height: 80px;
@@ -14,14 +18,14 @@ const Loading = styled.span`
   justify-content: center;
   align-items: center;
 `;
-const Banner = styled.div<{ bgPhoto: string }>`
+const Banner = styled.div<{ $bgPhoto: string }>`
   height: 100vh;
   display: flex;
   padding: 20px;
   flex-direction: column;
   justify-content: center;
   background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.7)),
-    url(${(props) => props.bgPhoto});
+    url(${(props) => props.$bgPhoto});
   background-size: cover;
 `;
 const Title = styled.h2`
@@ -32,7 +36,6 @@ const Overview = styled.p`
   font-size: 25px;
   width: 50%;
 `;
-
 const Silder = styled.div`
   position: relative;
   top: -100px;
@@ -44,14 +47,16 @@ const Row = styled(motion.div)`
   position: absolute;
   width: 100%;
 `;
-const Box = styled(motion.div)<{ bgPhoto: string }>`
+const Box = styled(motion.div)<{ $bgPhoto: string }>`
   background-color: white;
   height: 200px;
   color: red;
   font-size: 30px;
-  background-image: url(${(props) => props.bgPhoto});
+  background-image: url(${(props) => props.$bgPhoto});
   background-size: cover;
   background-position: center center;
+  border-radius: 10px;
+  cursor: pointer;
   &:first-child {
     transform-origin: center left;
   }
@@ -60,9 +65,9 @@ const Box = styled(motion.div)<{ bgPhoto: string }>`
   }
 `;
 const rowVar = {
-  hidden: { x: window.innerWidth - 10 },
+  hidden: { x: window.outerWidth - 10 },
   visible: { x: 0 },
-  exit: { x: -window.innerWidth + 10 },
+  exit: { x: -window.outerWidth + 10 },
 };
 const offset = 6;
 
@@ -92,11 +97,48 @@ const infoVar = {
     transition: { delay: 0.5, duration: 0.3, type: "tween" },
   },
 };
+const Bigmovie = styled(motion.div)`
+  position: absolute;
+  width: 40vw;
+  height: 80vh;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  border-radius: 15px;
+  overflow: hidden;
+  background-color: ${(props) => props.theme.black.lighter};
+`;
+const Bigimg = styled.div<{ $bgPhoto: string }>`
+  height: 300px;
+  background-size: cover;
+  background-position: center center;
+  background-image: url(${(props) => props.$bgPhoto});
+  width: 100%;
+`;
+const Bigtitle = styled.h3`
+  position: relative;
+  top: -60px;
+  padding-left: 20px;
+  font-size: 32px;
+  color: ${(props) => props.theme.white.lighter};
+`;
+const Overlay = styled(motion.div)`
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  opacity: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+`;
 function Home() {
+  const navigate = useNavigate();
+  const bigmovieMatch = useMatch(`/movie/:movie`);
+
   const { data, isLoading } = useQuery<IGetMoviesResult>(
     ["movies", "nowPlaying"],
     getMovie
   );
+  const { scrollY } = useViewportScroll();
   const [index, setIndex] = useState(0);
   const [leaving, setLeaving] = useState(false);
   const incraseIndex = () => {
@@ -109,6 +151,14 @@ function Home() {
     }
   };
   const ToggleLeaving = () => setLeaving((prev) => !prev);
+  const onBoxclicked = (movie: number) => {
+    navigate(`/movie/${movie}`);
+  };
+
+  const onOverlayclick = () => navigate(-1);
+  const clickMoive =
+    bigmovieMatch?.params.movie &&
+    data?.results.find((movie) => movie.id + "" === bigmovieMatch.params.movie);
   return (
     <Wrapper>
       {isLoading ? (
@@ -117,9 +167,9 @@ function Home() {
         <>
           <Banner
             onClick={incraseIndex}
-            bgPhoto={makeImagePath(data?.results[1].backdrop_path || "")}
+            $bgPhoto={makeImagePath(data?.results[1].backdrop_path || "")}
           >
-            <Title>{data?.results[1].original_title}</Title>
+            <Title>{data?.results[1].title}</Title>
             <Overview>{data?.results[1].overview}</Overview>
           </Banner>
           <Silder>
@@ -128,8 +178,8 @@ function Home() {
                 variants={rowVar}
                 initial="hidden"
                 animate="visible"
-                transition={{ type: "tween", duration: 2 }}
                 exit="exit"
+                transition={{ type: "tween", duration: 2 }}
                 key={index}
               >
                 {data?.results
@@ -140,18 +190,48 @@ function Home() {
                       variants={boxVar}
                       initial="normal"
                       whileHover="hover"
+                      key={movie.id}
+                      onClick={() => onBoxclicked(movie.id)}
                       transition={{ type: "tween" }}
-                      key={movie.Id}
-                      bgPhoto={makeImagePath(movie.backdrop_path, "w500")}
+                      $bgPhoto={makeImagePath(movie.backdrop_path, "w500")}
+                      layoutId={movie.id + ""}
                     >
                       <Info variants={infoVar}>
-                        <h4>{movie.original_title}</h4>
+                        <h4>{movie.title}</h4>
                       </Info>
                     </Box>
                   ))}
               </Row>
             </AnimatePresence>
           </Silder>
+          <AnimatePresence>
+            {bigmovieMatch ? (
+              <>
+                <Overlay
+                  onClick={onOverlayclick}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                ></Overlay>
+                <Bigmovie
+                  layoutId={bigmovieMatch.params.movie}
+                  style={{ top: scrollY.get() + 100 }}
+                >
+                  {clickMoive && (
+                    <>
+                      <Bigimg
+                        $bgPhoto={makeImagePath(
+                          clickMoive.backdrop_path,
+                          "w500"
+                        )}
+                      ></Bigimg>
+                      <Bigtitle>{clickMoive.title}</Bigtitle>
+                      <span>{clickMoive.overview}</span>
+                    </>
+                  )}
+                </Bigmovie>
+              </>
+            ) : null}
+          </AnimatePresence>
         </>
       )}
     </Wrapper>
