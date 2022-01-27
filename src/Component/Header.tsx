@@ -92,8 +92,9 @@ interface IForm {
 function Header() {
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
+  const Homematch = useMatch("/");
   const tvmatch = useMatch("/tv");
-  const homematch = useMatch("/");
+  const movienavmatch = useMatch("/movie");
   const { register, handleSubmit } = useForm<IForm>();
   const onVailed = (data: IForm) => {
     console.log(data);
@@ -143,8 +144,12 @@ function Header() {
 
         <Items>
           <Item>
-            <Link to="/">Movie</Link>
-            {homematch && <Circle layoutId="circle" />}
+            <Link to="/">Home</Link>
+            {Homematch && <Circle layoutId="circle" />}
+          </Item>
+          <Item>
+            <Link to="/movie">Movie</Link>
+            {movienavmatch && <Circle layoutId="circle" />}
           </Item>
           <Item>
             <Link to="/tv"> Tv Series</Link>
