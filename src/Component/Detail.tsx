@@ -20,12 +20,10 @@ const Bigtitle = styled.h3`
 `;
 function Detail() {
   const movieMatch = useMatch("/movie/:moveieId");
-  console.log(movieMatch?.params.moveieId);
   const { data, isLoading } = useQuery<IGetMovieDetail>(
     ["movie", "Detail"],
     () => getMovieDetail(movieMatch?.params.moveieId)
   );
-  console.log(data);
 
   return (
     <>

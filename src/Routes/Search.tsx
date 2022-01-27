@@ -45,16 +45,15 @@ const Overlay = styled(motion.div)`
   width: 100%;
   height: 100%;
   top: 0;
-  opacity: 0;
   background-color: rgba(0, 0, 0, 1);
 `;
 
 function Search() {
+  const { scrollY } = useViewportScroll();
   const navigate = useNavigate();
   const location = useLocation();
-  const { scrollY } = useViewportScroll();
-  const movieMatch = useMatch(`/search/:movie`);
   const keyword = new URLSearchParams(location.search).get("keyword");
+  const movieMatch = useMatch(`/search/:movie`);
   const { data, isLoading } = useQuery<Isearchmovie>(["search", keyword], () =>
     Searchmovie(keyword)
   );
@@ -84,11 +83,7 @@ function Search() {
           <AnimatePresence>
             {movieMatch ? (
               <>
-                <Overlay
-                  onClick={onOverlayclick}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                ></Overlay>
+                <Overlay onClick={onOverlayclick}></Overlay>
                 <Bigmovie
                   layoutId={movieMatch.params.movie}
                   style={{ top: scrollY.get() + 100 }}
