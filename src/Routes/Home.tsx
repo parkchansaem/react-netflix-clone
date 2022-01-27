@@ -5,7 +5,8 @@ import styled from "styled-components";
 import { getMovie, IGetMoviesResult } from "../api";
 import { makeImagePath } from "../utils";
 import { useMatch, useNavigate } from "react-router-dom";
-import { moveEmitHelpers } from "typescript";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 
 const Wrapper = styled.div`
   background-color: black;
@@ -39,6 +40,11 @@ const Overview = styled.p`
 const Silder = styled.div`
   position: relative;
   top: -100px;
+`;
+const NextBtn = styled.div`
+  position: absolute;
+  right: 0;
+  top: 70px;
 `;
 const Row = styled(motion.div)`
   display: grid;
@@ -166,7 +172,6 @@ function Home() {
       ) : (
         <>
           <Banner
-            onClick={incraseIndex}
             $bgPhoto={makeImagePath(data?.results[1].backdrop_path || "")}
           >
             <Title>{data?.results[1].title}</Title>
@@ -179,7 +184,7 @@ function Home() {
                 initial="hidden"
                 animate="visible"
                 exit="exit"
-                transition={{ type: "tween", duration: 2 }}
+                transition={{ type: "tween", duration: 1 }}
                 key={index}
               >
                 {data?.results
@@ -203,6 +208,9 @@ function Home() {
                   ))}
               </Row>
             </AnimatePresence>
+            <NextBtn onClick={incraseIndex}>
+              <FontAwesomeIcon icon={faArrowRight} size="3x" />
+            </NextBtn>
           </Silder>
           <AnimatePresence>
             {bigmovieMatch ? (

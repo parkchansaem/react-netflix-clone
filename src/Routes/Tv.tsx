@@ -1,15 +1,21 @@
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styled from "styled-components";
 
 const Title = styled.span`
   font-size: 200px;
 `;
 const Box = styled.div`
-  background-color: red;
-  height: 100px;
-  width: 100px;
+  background-color: white;
+  height: 500px;
+  width: 500px;
 `;
 function Tv() {
-  return <Box></Box>;
+  return (
+    <Box>
+      <FontAwesomeIcon icon={faArrowRight} size="4x" />
+    </Box>
+  );
 }
 
 export default Tv;
