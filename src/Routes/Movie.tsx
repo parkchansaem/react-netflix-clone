@@ -263,12 +263,14 @@ function Movie() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 ></Overlay>
-                <Bigmovie
-                  layoutId={bigmovieMatch.params.movie}
-                  style={{ top: scrollY.get() + 100 }}
-                >
-                  <Detail />
-                </Bigmovie>
+                {bigmovieMatch && (
+                  <Bigmovie
+                    layoutId={bigmovieMatch.params.movie}
+                    style={{ top: scrollY.get() + 100 }}
+                  >
+                    <Detail />
+                  </Bigmovie>
+                )}
               </>
             ) : null}
           </AnimatePresence>

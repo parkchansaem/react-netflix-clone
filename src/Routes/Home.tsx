@@ -1,8 +1,10 @@
-import { motion } from "framer-motion";
+import { AnimatePresence, motion, useViewportScroll } from "framer-motion";
 import { useState } from "react";
 import { useQuery } from "react-query";
+import { useMatch, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { getMovie, IGetMoviesResult } from "../api";
+import { getMovie, getMovieHome, IGetMoviesResult } from "../api";
+import Detail from "../Component/Detail";
 import { makeImagePath } from "../utils";
 
 const Wrapper = styled.div`
@@ -33,23 +35,75 @@ const Box = styled(motion.div)<{ $bgPhoto: string }>`
   background-position: center center;
   background-size: cover;
 `;
+const Bigmovie = styled(motion.div)`
+  position: absolute;
+  width: 40vw;
+  height: 80vh;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  border-radius: 15px;
+  overflow: hidden;
+  background-color: ${(props) => props.theme.black.lighter};
+`;
+const Overlay = styled(motion.div)`
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  opacity: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+`;
 function Home() {
+  const { scrollY } = useViewportScroll();
+  const navigate = useNavigate();
+  const BigHomeMatch = useMatch(`/:Id`);
+  console.log(BigHomeMatch);
   const { data, isLoading } = useQuery<IGetMoviesResult>(
     ["movies", "nowPlaying"],
-    getMovie
+    getMovieHome
   );
-  const [index, setIndex] = useState(0);
+  const onClickHome = (movieId: string) => {
+    navigate(`/${movieId}`);
+  };
+  const onOverlayclick = () => {
+    navigate(-1);
+  };
   return (
     <>
       {isLoading ? null : (
         <Wrapper>
           <Grid>
-            {data?.results.slice(0, 9).map((movie) => (
-              <Box $bgPhoto={makeImagePath(movie.backdrop_path)} key={movie.id}>
+            {data?.results.slice(1, 10).map((movie) => (
+              <Box
+                onClick={() => onClickHome(movie.id + "")}
+                $bgPhoto={makeImagePath(movie.backdrop_path)}
+                key={movie.id}
+                layoutId={movie.id + ""}
+              >
                 {movie.title}
               </Box>
             ))}
           </Grid>
+          <AnimatePresence>
+            {BigHomeMatch ? (
+              <>
+                <Overlay
+                  onClick={onOverlayclick}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                ></Overlay>
+                {BigHomeMatch && (
+                  <Bigmovie
+                    layoutId={BigHomeMatch.params.Id}
+                    style={{ top: scrollY.get() + 100 }}
+                  >
+                    <Detail />
+                  </Bigmovie>
+                )}
+              </>
+            ) : null}
+          </AnimatePresence>
         </Wrapper>
       )}
     </>

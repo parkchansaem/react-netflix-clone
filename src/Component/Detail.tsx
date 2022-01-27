@@ -10,6 +10,7 @@ import {
   IGetTv,
   IgetTvDetail,
 } from "../api";
+import Home from "../Routes/Home";
 import { makeImagePath } from "../utils";
 const Loading = styled.div`
   width: 100%;
@@ -33,16 +34,17 @@ const Bigtitle = styled.h3`
 function Detail() {
   const TvMatch = useMatch("/tv/:tvId");
   const movieMatch = useMatch("/movie/:moveieId");
-
+  const HomeMatch = useMatch("/:moveieId");
+  const MovieID = HomeMatch?.params.moveieId || movieMatch?.params.moveieId;
+  console.log(MovieID);
   const { data: movieDE, isLoading: MovieDL } = useQuery<IGetMovieDetail>(
     ["movie", "Detail"],
-    () => getMovieDetail(movieMatch?.params.moveieId)
+    () => getMovieDetail(MovieID)
   );
   const { data: tvDE, isLoading: TvDL } = useQuery<IgetTvDetail>(
     ["tv", "tvDetail"],
     () => getTvDetail(TvMatch?.params.tvId)
   );
-  console.log(tvDE);
   const isLoading = MovieDL || TvDL;
   return (
     <>
@@ -50,7 +52,7 @@ function Detail() {
         <Loading />
       ) : (
         <>
-          {movieMatch ? (
+          {MovieID ? (
             <>
               <Bigimg
                 $bgPhoto={makeImagePath(movieDE?.backdrop_path || "")}
