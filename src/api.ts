@@ -23,7 +23,19 @@ export interface Isearchmovie {
   page: number;
   results: IMovie[];
 }
-
+export interface IGetMovieDetail {
+  adult: boolean;
+  backdrop_path: string;
+  homepage: string;
+  id: number;
+  title: string;
+  vote_average: number;
+  overview: string;
+  poster_path: string;
+  name: string;
+  runtime: number;
+  number_of_seasons: number;
+}
 export function getMovie() {
   return fetch(
     `${BASE_PATH}/movie/now_playing?api_key=${API_KEY}&language=ko-KR`
@@ -34,4 +46,17 @@ export function Searchmovie(keyword: string | null) {
   return fetch(
     `${BASE_PATH}/search/movie?api_key=${API_KEY}&language=ko-KR&query=${keyword}&page=1&include_adult=false`
   ).then((response) => response.json());
+}
+
+export function getUpMovie() {
+  return fetch(
+    `${BASE_PATH}/movie/upcoming?api_key=${API_KEY}&language=ko-KR&page=2`
+  ).then((responese) => responese.json());
+}
+
+export function getMovieDetail(movieId?: string) {
+  return fetch(`
+  ${BASE_PATH}/movie/${movieId}?api_key=${API_KEY}&language=ko-KR`).then(
+    (response) => response.json()
+  );
 }
