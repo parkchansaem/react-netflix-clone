@@ -143,7 +143,7 @@ function Header() {
 
         <Items>
           <Item>
-            <Link to="/">Home</Link>
+            <Link to="/">Movie</Link>
             {homematch && <Circle layoutId="circle" />}
           </Item>
           <Item>

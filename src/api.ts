@@ -36,6 +36,30 @@ export interface IGetMovieDetail {
   runtime: number;
   number_of_seasons: number;
 }
+export interface IgetTvDetail {
+  adult: boolean;
+  backdrop_path: string;
+  homepage: string;
+  id: number;
+  title: string;
+  vote_average: number;
+  overview: string;
+  poster_path: string;
+  name: string;
+  runtime: number;
+  number_of_seasons: number;
+}
+interface ITV {
+  backdrop_path: string;
+  name: string;
+  overview: string;
+  poster_path: string;
+  id: number;
+}
+export interface IGetTv {
+  page: number;
+  results: ITV[];
+}
 export function getMovie() {
   return fetch(
     `${BASE_PATH}/movie/now_playing?api_key=${API_KEY}&language=ko-KR`
@@ -58,5 +82,23 @@ export function getMovieDetail(movieId?: string) {
   return fetch(`
   ${BASE_PATH}/movie/${movieId}?api_key=${API_KEY}&language=ko-KR`).then(
     (response) => response.json()
+  );
+}
+
+export function getTv() {
+  return fetch(
+    `${BASE_PATH}/tv/top_rated?api_key=${API_KEY}&language=ko-KR`
+  ).then((response) => response.json());
+}
+
+export function getPopularTv() {
+  return fetch(
+    `${BASE_PATH}/tv/popular?api_key=${API_KEY}&language=ko-KR`
+  ).then((response) => response.json());
+}
+export function getTvDetail(tvId?: string) {
+  return fetch(`
+  ${BASE_PATH}/tv/${tvId}?api_key=${API_KEY}&language=ko-KR`).then((response) =>
+    response.json()
   );
 }

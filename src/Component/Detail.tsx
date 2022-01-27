@@ -1,9 +1,21 @@
 import { useQuery } from "react-query";
 import { useLocation, useMatch, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { getMovieDetail, IGetMovieDetail, IGetMoviesResult } from "../api";
+import {
+  getMovieDetail,
+  getPopularTv,
+  getTvDetail,
+  IGetMovieDetail,
+  IGetMoviesResult,
+  IGetTv,
+  IgetTvDetail,
+} from "../api";
 import { makeImagePath } from "../utils";
-
+const Loading = styled.div`
+  width: 100%;
+  height: 100%;
+  background-color: ${(props) => props.theme.black.lighter};
+`;
 const Bigimg = styled.div<{ $bgPhoto: string }>`
   height: 300px;
   background-size: cover;
@@ -19,21 +31,42 @@ const Bigtitle = styled.h3`
   color: ${(props) => props.theme.white.lighter};
 `;
 function Detail() {
+  const TvMatch = useMatch("/tv/:tvId");
   const movieMatch = useMatch("/movie/:moveieId");
-  const { data, isLoading } = useQuery<IGetMovieDetail>(
+
+  const { data: movieDE, isLoading: MovieDL } = useQuery<IGetMovieDetail>(
     ["movie", "Detail"],
     () => getMovieDetail(movieMatch?.params.moveieId)
   );
-
+  const { data: tvDE, isLoading: TvDL } = useQuery<IgetTvDetail>(
+    ["tv", "tvDetail"],
+    () => getTvDetail(TvMatch?.params.tvId)
+  );
+  console.log(tvDE);
+  const isLoading = MovieDL || TvDL;
   return (
     <>
       {isLoading ? (
-        <div>Loding..</div>
+        <Loading />
       ) : (
         <>
-          <Bigimg $bgPhoto={makeImagePath(data?.backdrop_path || "")}></Bigimg>
-          <Bigtitle>{data?.title}</Bigtitle>
-          <span>{data?.overview}</span>
+          {movieMatch ? (
+            <>
+              <Bigimg
+                $bgPhoto={makeImagePath(movieDE?.backdrop_path || "")}
+              ></Bigimg>
+              <Bigtitle>{movieDE?.title}</Bigtitle>
+              <span>{movieDE?.overview}</span>
+            </>
+          ) : (
+            <>
+              <Bigimg
+                $bgPhoto={makeImagePath(tvDE?.backdrop_path || "")}
+              ></Bigimg>
+              <Bigtitle>{tvDE?.name}</Bigtitle>
+              <span>{tvDE?.overview}</span>
+            </>
+          )}
         </>
       )}
     </>
