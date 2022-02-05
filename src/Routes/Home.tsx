@@ -60,7 +60,7 @@ function Home() {
   const BigHomeMatch = useMatch(`/:Id`);
   console.log(BigHomeMatch);
   const { data, isLoading } = useQuery<IGetMoviesResult>(
-    ["movies", "nowPlaying"],
+    ["movie", "nowPlaying"],
     getMovieHome
   );
   const onClickHome = (movieId: string) => {
@@ -79,7 +79,7 @@ function Home() {
                 onClick={() => onClickHome(movie.id + "")}
                 $bgPhoto={makeImagePath(movie.backdrop_path)}
                 key={movie.id}
-                layoutId={movie.id + ""}
+                layoutId={`/${movie.id + ""}`}
               >
                 {movie.title}
               </Box>
@@ -93,14 +93,12 @@ function Home() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 ></Overlay>
-                {BigHomeMatch && (
-                  <Bigmovie
-                    layoutId={BigHomeMatch.params.Id}
-                    style={{ top: scrollY.get() + 100 }}
-                  >
-                    <Detail />
-                  </Bigmovie>
-                )}
+                <Bigmovie
+                  layoutId={`/${BigHomeMatch.params.Id}`}
+                  style={{ top: scrollY.get() + 100 }}
+                >
+                  <Detail />
+                </Bigmovie>
               </>
             ) : null}
           </AnimatePresence>

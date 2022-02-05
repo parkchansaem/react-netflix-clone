@@ -1,4 +1,5 @@
 import { AnimatePresence, motion, useViewportScroll } from "framer-motion";
+import { useState } from "react";
 import { useQuery } from "react-query";
 import { useLocation, useMatch, useNavigate } from "react-router-dom";
 import styled from "styled-components";
@@ -54,12 +55,15 @@ function Search() {
   const location = useLocation();
   const keyword = new URLSearchParams(location.search).get("keyword");
   const movieMatch = useMatch(`/search/:movie`);
+  const [type, setType] = useState("");
   const { data, isLoading } = useQuery<Isearchmovie>(["search", keyword], () =>
     Searchmovie(keyword)
   );
-  const onSearchClick = (movie: string) => {
+  const onSearchmovieClick = (movie: string, type: string) => {
     navigate(`/search/${movie}`);
+    setType(type);
   };
+
   const onOverlayclick = () => {
     navigate(-1);
   };
@@ -69,13 +73,23 @@ function Search() {
         <span>loading...</span>
       ) : (
         <>
-          {data?.results.map((movie) => (
+          {data?.results.map((multi) => (
             <SearchColumn>
               <Poster
-                onClick={() => onSearchClick(movie.id + "")}
-                $bgPhoto={makeImagePath(movie.backdrop_path)}
+                onClick={() =>
+                  onSearchmovieClick(multi.id + "", multi.media_type)
+                }
+                $bgPhoto={
+                  multi.backdrop_path
+                    ? makeImagePath(multi.backdrop_path)
+                    : makeImagePath(multi.poster_path)
+                }
+                defaultValue={multi.media_type}
               >
-                <Title key={movie.id}>{movie.title}</Title>
+                <Title key={multi.id}>
+                  {multi.title}
+                  {multi.name}
+                </Title>
                 <Detail />
               </Poster>
             </SearchColumn>
@@ -88,7 +102,7 @@ function Search() {
                   layoutId={movieMatch.params.movie}
                   style={{ top: scrollY.get() + 100 }}
                 >
-                  <SearchDetail />
+                  <SearchDetail type={type} />
                 </Bigmovie>
               </>
             ) : null}

@@ -9,6 +9,8 @@ interface IMovie {
   overview: string;
   poster_path: string;
   id: number;
+  name: string;
+  media_type: string;
 }
 
 export interface IGetMoviesResult {
@@ -17,6 +19,13 @@ export interface IGetMoviesResult {
   results: IMovie[];
   total_pages: number;
   total_results: number;
+}
+export interface IGetLatestMovie {
+  id: number;
+  backdrop_path: string;
+  title: string;
+  overview: string;
+  poster_path: string;
 }
 
 export interface Isearchmovie {
@@ -73,7 +82,12 @@ export function getMovieHome() {
 
 export function Searchmovie(keyword: string | null) {
   return fetch(
-    `${BASE_PATH}/search/movie?api_key=${API_KEY}&language=ko-KR&query=${keyword}&page=1&include_adult=false`
+    `${BASE_PATH}/search/multi?api_key=${API_KEY}&language=ko-KR&query=${keyword}&page=1&include_adult=false`
+  ).then((response) => response.json());
+}
+export function Searchtv(keyword: string | null) {
+  return fetch(
+    `${BASE_PATH}/search/tv?api_key=${API_KEY}&language=ko-KR&query=${keyword}&page=1&include_adult=false`
   ).then((response) => response.json());
 }
 
@@ -81,6 +95,11 @@ export function getUpMovie() {
   return fetch(
     `${BASE_PATH}/movie/upcoming?api_key=${API_KEY}&language=ko-KR&page=2`
   ).then((responese) => responese.json());
+}
+export function getTopmovie() {
+  return fetch(
+    `${BASE_PATH}/movie/top_rated?api_key=${API_KEY}&language=ko-KR&page=2`
+  ).then((response) => response.json());
 }
 
 export function getMovieDetail(movieId?: string) {
@@ -99,6 +118,16 @@ export function getTv() {
 export function getPopularTv() {
   return fetch(
     `${BASE_PATH}/tv/popular?api_key=${API_KEY}&language=ko-KR`
+  ).then((response) => response.json());
+}
+export function getAiringtodayTv() {
+  return fetch(
+    `${BASE_PATH}/tv/airing_today?api_key=${API_KEY}&language=ko-KR`
+  ).then((response) => response.json());
+}
+export function getOntheAir() {
+  return fetch(
+    `${BASE_PATH}/tv/on_the_air?api_key=${API_KEY}&language=ko-KR&page=2`
   ).then((response) => response.json());
 }
 export function getTvDetail(tvId?: string) {

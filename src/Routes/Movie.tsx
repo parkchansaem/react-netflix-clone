@@ -2,7 +2,13 @@ import { AnimatePresence, motion, useViewportScroll } from "framer-motion";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import styled from "styled-components";
-import { getMovie, getUpMovie, IGetMoviesResult } from "../api";
+import {
+  getMovie,
+  getTopmovie,
+  getUpMovie,
+  IGetLatestMovie,
+  IGetMoviesResult,
+} from "../api";
 import { makeImagePath } from "../utils";
 import { useMatch, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -50,6 +56,10 @@ const Slider = styled.div`
 const UpComSlider = styled.div`
   position: relative;
   margin-top: 300px;
+`;
+const ToprateSlider = styled.div`
+  position: relative;
+  margin-top: 700px;
 `;
 const NextBtn = styled.div`
   position: absolute;
@@ -138,12 +148,18 @@ function Movie() {
   const navigate = useNavigate();
   const bigmovieMatch = useMatch(`/movie/:movie`);
   const { data: nowplayingData, isLoading: NowLoading } =
-    useQuery<IGetMoviesResult>(["movies", "nowPlaying"], getMovie);
+    useQuery<IGetMoviesResult>(["movies1", "nowPlaying"], getMovie);
+  console.log(nowplayingData);
   const { data: upcomingData, isLoading: UpLoading } =
-    useQuery<IGetMoviesResult>(["movies,Upcoming"], getUpMovie);
+    useQuery<IGetMoviesResult>(["movies2", "Upcoming"], getUpMovie);
+  const { data: topData, isLoading: TopLoading } = useQuery<IGetMoviesResult>(
+    ["movies3", "Latestmovies"],
+    getTopmovie
+  );
   const { scrollY } = useViewportScroll();
   const [index, setIndex] = useState(0);
   const [upIndex, setUpIndex] = useState(0);
+  const [TopIndex, setTopIndex] = useState(0);
   const [leaving, setLeaving] = useState(false);
   const incraseIndex = () => {
     if (nowplayingData) {
@@ -163,12 +179,21 @@ function Movie() {
       setUpIndex((prev) => (prev === maxIndax ? 0 : prev + 1));
     }
   };
+  const TopIncraseIndex = () => {
+    if (topData) {
+      if (leaving) return;
+      ToggleLeaving();
+      const totalMovie = topData.results.length - 1;
+      const maxIndax = Math.floor(totalMovie / offset) - 1;
+      setTopIndex((prev) => (prev === maxIndax ? 0 : prev + 1));
+    }
+  };
   const ToggleLeaving = () => setLeaving((prev) => !prev);
   const onBoxclicked = (movie: number) => {
     navigate(`/movie/${movie}`);
   };
   const onOverlayclick = () => navigate(-1);
-  const isLoading = NowLoading || UpLoading;
+  const isLoading = NowLoading || UpLoading || TopLoading;
   return (
     <Wrapper>
       {isLoading ? (
@@ -177,11 +202,11 @@ function Movie() {
         <>
           <Banner
             $bgPhoto={makeImagePath(
-              nowplayingData?.results[1].backdrop_path || ""
+              nowplayingData?.results[0].backdrop_path || ""
             )}
           >
-            <Title>{nowplayingData?.results[1].title}</Title>
-            <Overview>{nowplayingData?.results[1].overview}</Overview>
+            <Title>{nowplayingData?.results[0].title}</Title>
+            <Overview>{nowplayingData?.results[0].overview}</Overview>
           </Banner>
           <Slider>
             <AnimatePresence initial={false} onExitComplete={ToggleLeaving}>
@@ -255,6 +280,41 @@ function Movie() {
               <FontAwesomeIcon icon={faArrowRight} size="3x" />
             </NextBtn>
           </UpComSlider>
+          <ToprateSlider>
+            <AnimatePresence initial={false} onExitComplete={ToggleLeaving}>
+              <Row
+                variants={rowVar}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                transition={{ type: "tween", duration: 1 }}
+                key={TopIndex}
+              >
+                <Category>Top-Rated Movie page({TopIndex + 1})</Category>
+                {topData?.results
+                  .slice(offset * TopIndex, offset * TopIndex + offset)
+                  .map((movie) => (
+                    <Box
+                      variants={boxVar}
+                      initial="normal"
+                      whileHover="hover"
+                      key={movie.id}
+                      onClick={() => onBoxclicked(movie.id)}
+                      transition={{ type: "tween" }}
+                      $bgPhoto={makeImagePath(movie.backdrop_path, "w500")}
+                      layoutId={movie.id + ""}
+                    >
+                      <Info variants={infoVar}>
+                        <h4>{movie.title}</h4>
+                      </Info>
+                    </Box>
+                  ))}
+              </Row>
+            </AnimatePresence>
+            <NextBtn onClick={TopIncraseIndex}>
+              <FontAwesomeIcon icon={faArrowRight} size="3x" />
+            </NextBtn>
+          </ToprateSlider>
           <AnimatePresence>
             {bigmovieMatch ? (
               <>
@@ -263,14 +323,12 @@ function Movie() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 ></Overlay>
-                {bigmovieMatch && (
-                  <Bigmovie
-                    layoutId={bigmovieMatch.params.movie}
-                    style={{ top: scrollY.get() + 100 }}
-                  >
-                    <Detail />
-                  </Bigmovie>
-                )}
+                <Bigmovie
+                  layoutId={bigmovieMatch.params.movie}
+                  style={{ top: scrollY.get() + 100 }}
+                >
+                  <Detail />
+                </Bigmovie>
               </>
             ) : null}
           </AnimatePresence>

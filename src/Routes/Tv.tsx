@@ -5,8 +5,11 @@ import { useState } from "react";
 import { useQuery } from "react-query";
 import { useMatch, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import noPoster from "../Component/Noposter";
 import {
+  getAiringtodayTv,
   getMovie,
+  getOntheAir,
   getPopularTv,
   getTv,
   getUpMovie,
@@ -56,6 +59,14 @@ const Slider = styled.div`
 const UpComSlider = styled.div`
   position: relative;
   margin-top: 300px;
+`;
+const AiringSlider = styled.div`
+  position: relative;
+  margin-top: 700px;
+`;
+const OntheAirSlider = styled.div`
+  position: relative;
+  margin-top: 1100px;
 `;
 const NextBtn = styled.div`
   position: absolute;
@@ -151,9 +162,19 @@ function Tv() {
     ["tvs,popular"],
     getPopularTv
   );
+  const { data: airingTv, isLoading: airingLoading } = useQuery<IGetTv>(
+    ["tvs", "airring"],
+    getAiringtodayTv
+  );
+  const { data: ontheairTv, isLoading: onairLoading } = useQuery<IGetTv>(
+    ["tvs", "ontheair"],
+    getOntheAir
+  );
   const { scrollY } = useViewportScroll();
   const [index, setIndex] = useState(0);
   const [upIndex, setUpIndex] = useState(0);
+  const [airingIndex, setAiringIndex] = useState(0);
+  const [onairIndex, setOnairIndex] = useState(0);
   const [leaving, setLeaving] = useState(false);
   const incraseIndex = () => {
     if (toprateTv) {
@@ -173,12 +194,30 @@ function Tv() {
       setUpIndex((prev) => (prev === maxIndax ? 0 : prev + 1));
     }
   };
+  const airringIncraseIndex = () => {
+    if (airingTv) {
+      if (leaving) return;
+      ToggleLeaving();
+      const totalMovie = airingTv.results.length - 1;
+      const maxIndax = Math.floor(totalMovie / offset) - 1;
+      setAiringIndex((prev) => (prev === maxIndax ? 0 : prev + 1));
+    }
+  };
+  const OntheAirIncraseIndex = () => {
+    if (ontheairTv) {
+      if (leaving) return;
+      ToggleLeaving();
+      const totalMovie = ontheairTv.results.length - 1;
+      const maxIndax = Math.floor(totalMovie / offset) - 1;
+      setOnairIndex((prev) => (prev === maxIndax ? 0 : prev + 1));
+    }
+  };
   const ToggleLeaving = () => setLeaving((prev) => !prev);
   const onBoxclicked = (movie: number) => {
     navigate(`/tv/${movie}`);
   };
   const onOverlayclick = () => navigate(-1);
-  const isLoading = topLoading || popLoading;
+  const isLoading = topLoading || popLoading || airingLoading || onairLoading;
   return (
     <Wrapper>
       {isLoading ? (
@@ -186,10 +225,10 @@ function Tv() {
       ) : (
         <>
           <Banner
-            $bgPhoto={makeImagePath(toprateTv?.results[1].backdrop_path || "")}
+            $bgPhoto={makeImagePath(toprateTv?.results[0].backdrop_path || "")}
           >
-            <Title>{toprateTv?.results[1].name}</Title>
-            <Overview>{toprateTv?.results[1].overview}</Overview>
+            <Title>{toprateTv?.results[0].name}</Title>
+            <Overview>{toprateTv?.results[0].overview}</Overview>
           </Banner>
           <Slider>
             <AnimatePresence initial={false} onExitComplete={ToggleLeaving}>
@@ -263,6 +302,77 @@ function Tv() {
               <FontAwesomeIcon icon={faArrowRight} size="3x" />
             </NextBtn>
           </UpComSlider>
+          <AiringSlider>
+            <AnimatePresence initial={false} onExitComplete={ToggleLeaving}>
+              <Row
+                variants={rowVar}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                transition={{ type: "tween", duration: 1 }}
+                key={airingIndex}
+              >
+                <Category>Airing Tv Pages({airingIndex + 1})</Category>
+                {airingTv?.results
+
+                  .slice(offset * airingIndex, offset * airingIndex + offset)
+                  .map((movie) => (
+                    <Box
+                      variants={boxVar}
+                      initial="normal"
+                      whileHover="hover"
+                      key={movie.id}
+                      onClick={() => onBoxclicked(movie.id)}
+                      transition={{ type: "tween" }}
+                      $bgPhoto={makeImagePath(movie.backdrop_path, "w500")}
+                      layoutId={movie.id + ""}
+                    >
+                      <Info variants={infoVar}>
+                        <h4>{movie.name}</h4>
+                      </Info>
+                    </Box>
+                  ))}
+              </Row>
+            </AnimatePresence>
+            <NextBtn onClick={airringIncraseIndex}>
+              <FontAwesomeIcon icon={faArrowRight} size="3x" />
+            </NextBtn>
+          </AiringSlider>
+          <OntheAirSlider>
+            <AnimatePresence initial={false} onExitComplete={ToggleLeaving}>
+              <Row
+                variants={rowVar}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                transition={{ type: "tween", duration: 1 }}
+                key={onairIndex}
+              >
+                <Category>On the Air Tv Pages({onairIndex + 1})</Category>
+                {ontheairTv?.results
+                  .slice(offset * onairIndex, offset * onairIndex + offset)
+                  .map((movie) => (
+                    <Box
+                      variants={boxVar}
+                      initial="normal"
+                      whileHover="hover"
+                      key={movie.id}
+                      onClick={() => onBoxclicked(movie.id)}
+                      transition={{ type: "tween" }}
+                      $bgPhoto={makeImagePath(movie.backdrop_path, "w500")}
+                      layoutId={movie.id + ""}
+                    >
+                      <Info variants={infoVar}>
+                        <h4>{movie.name}</h4>
+                      </Info>
+                    </Box>
+                  ))}
+              </Row>
+            </AnimatePresence>
+            <NextBtn onClick={OntheAirIncraseIndex}>
+              <FontAwesomeIcon icon={faArrowRight} size="3x" />
+            </NextBtn>
+          </OntheAirSlider>
           <AnimatePresence>
             {bigmovieMatch ? (
               <>

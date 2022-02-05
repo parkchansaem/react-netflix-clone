@@ -12,9 +12,9 @@ import {
 } from "../api";
 import Home from "../Routes/Home";
 import { makeImagePath } from "../utils";
-const Loading = styled.div`
-  width: 100%;
-  height: 100%;
+const Loading = styled.span`
+  width: 900px;
+  height: 900px;
   background-color: ${(props) => props.theme.black.lighter};
 `;
 const Bigimg = styled.div<{ $bgPhoto: string }>`
@@ -36,7 +36,7 @@ function Detail() {
   const movieMatch = useMatch("/movie/:moveieId");
   const HomeMatch = useMatch("/:moveieId");
   const MovieID = HomeMatch?.params.moveieId || movieMatch?.params.moveieId;
-  console.log(MovieID);
+
   const { data: movieDE, isLoading: MovieDL } = useQuery<IGetMovieDetail>(
     ["movie", "Detail"],
     () => getMovieDetail(MovieID)
@@ -49,7 +49,7 @@ function Detail() {
   return (
     <>
       {isLoading ? (
-        <Loading />
+        <Loading>Loading!!</Loading>
       ) : (
         <>
           {MovieID ? (
