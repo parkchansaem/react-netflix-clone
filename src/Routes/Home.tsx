@@ -57,17 +57,17 @@ const Overlay = styled(motion.div)`
 function Home() {
   const { scrollY } = useViewportScroll();
   const navigate = useNavigate();
-  const BigHomeMatch = useMatch(`/:Id`);
+  const BigHomeMatch = useMatch(`/home/:Id`);
   console.log(BigHomeMatch);
   const { data, isLoading } = useQuery<IGetMoviesResult>(
     ["movie", "nowPlaying"],
     getMovieHome
   );
   const onClickHome = (movieId: string) => {
-    navigate(`/${movieId}`);
+    navigate(`/home/${movieId}`);
   };
   const onOverlayclick = () => {
-    navigate(-1);
+    navigate("/");
   };
   return (
     <>
@@ -79,7 +79,7 @@ function Home() {
                 onClick={() => onClickHome(movie.id + "")}
                 $bgPhoto={makeImagePath(movie.backdrop_path)}
                 key={movie.id}
-                layoutId={`/${movie.id + ""}`}
+                layoutId={`${movie.id + ""}`}
               >
                 {movie.title}
               </Box>
@@ -94,7 +94,7 @@ function Home() {
                   exit={{ opacity: 0 }}
                 ></Overlay>
                 <Bigmovie
-                  layoutId={`/${BigHomeMatch.params.Id}`}
+                  layoutId={`${BigHomeMatch.params.Id}`}
                   style={{ top: scrollY.get() + 100 }}
                 >
                   <Detail />
