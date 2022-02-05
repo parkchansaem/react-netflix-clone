@@ -79,7 +79,7 @@ function Home() {
                 onClick={() => onClickHome(movie.id + "")}
                 $bgPhoto={makeImagePath(movie.backdrop_path)}
                 key={movie.id}
-                layoutId={`${movie.id + ""}`}
+                layoutId={`/${movie.id + ""}`}
               >
                 {movie.title}
               </Box>
@@ -94,7 +94,7 @@ function Home() {
                   exit={{ opacity: 0 }}
                 ></Overlay>
                 <Bigmovie
-                  layoutId={`${BigHomeMatch.params.Id}`}
+                  layoutId={`/${BigHomeMatch.params.Id}`}
                   style={{ top: scrollY.get() + 100 }}
                 >
                   <Detail />
