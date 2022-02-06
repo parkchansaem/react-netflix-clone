@@ -34,7 +34,7 @@ const Bigtitle = styled.h3`
 function Detail() {
   const TvMatch = useMatch("/tv/:tvId");
   const movieMatch = useMatch("/movie/:moveieId");
-  const HomeMatch = useMatch("/home/moveieId");
+  const HomeMatch = useMatch("/home/:moveieId");
   const MovieID = HomeMatch?.params.moveieId || movieMatch?.params.moveieId;
 
   const { data: movieDE, isLoading: MovieDL } = useQuery<IGetMovieDetail>(
