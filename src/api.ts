@@ -122,7 +122,7 @@ export function getPopularTv() {
 }
 export function getAiringtodayTv() {
   return fetch(
-    `${BASE_PATH}/tv/airing_today?api_key=${API_KEY}&language=ko-KR`
+    `${BASE_PATH}/tv/airing_today?api_key=${API_KEY}&language=ko-KR&page=2`
   ).then((response) => response.json());
 }
 export function getOntheAir() {

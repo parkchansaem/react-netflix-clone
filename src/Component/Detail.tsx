@@ -60,7 +60,18 @@ function Detail() {
               <Bigtitle>{movieDE?.title}</Bigtitle>
               <span>{movieDE?.overview}</span>
             </>
-          ) : null}
+          ) : (
+            <>
+              <Bigimg
+                $bgPhoto={makeImagePath(tvDE?.backdrop_path || "")}
+              ></Bigimg>
+              <Bigtitle>
+                {tvDE?.title}
+                {tvDE?.name}
+              </Bigtitle>
+              <span>{tvDE?.overview}</span>
+            </>
+          )}
         </>
       )}
     </>
